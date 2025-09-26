@@ -41,9 +41,9 @@ matplotlib.style.use('dark_background' if theme == "dark" else 'default')
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
-        Base = config.get('General', 'Base', fallback='ERREUR')
+        Base = config.get('Database', 'Base', fallback='ERREUR')
         CDI_Name = config.get("General","CDI_Name",fallback='AUCUN NOM')
-        self.title(f"CDIStats - Base : {Base} | {CDI_Name}")
+        self.title(f"[CDIStats] | Base : {Base} | {CDI_Name}")
         self.geometry("800x600")
         self.configure(bg=BG_COLOR)
         self.theme_var = tk.StringVar(value=theme)
