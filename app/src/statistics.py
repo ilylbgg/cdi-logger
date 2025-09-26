@@ -1,6 +1,6 @@
 from .database import get_all_attendance
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def stats_today():
     data = get_all_attendance()
@@ -35,5 +35,27 @@ def repartition_par_classe():
         rep['4ème'] += row[4]
         rep['3ème'] += row[5]
     return rep
+
+def stats_semaine():
+    data = get_all_attendance()
+    today = datetime.now()
+    start_week = today - timedelta(days=today.weekday())
+    start_week_str = start_week.strftime('%Y-%m-%d')
+    end_week_str = today.strftime('%Y-%m-%d')
+    week_data = [row for row in data if start_week_str <= row[7] <= end_week_str]
+    total = sum(row[6] for row in week_data)
+    return total
+
+def average_per_hour_week():
+    data = get_all_attendance()
+    today = datetime.now()
+    start_week = today - timedelta(days=today.weekday())
+    start_week_str = start_week.strftime('%Y-%m-%d')
+    end_week_str = today.strftime('%Y-%m-%d')
+    hours = defaultdict(list)
+    for row in data:
+        if start_week_str <= row[7] <= end_week_str:
+            hours[row[1]].append(row[6])
+    return {h: sum(vals)/len(vals) for h, vals in hours.items()}
 
 # ...other statistics functions...
