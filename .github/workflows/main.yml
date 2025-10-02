@@ -6,7 +6,9 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest  # Nécessaire pour générer un .exe
+    runs-on: windows-latest
+    permissions:
+      contents: write  # Autorise la création de Releases et l'upload d'assets
 
     steps:
       - name: Checkout repository
@@ -15,24 +17,28 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"  # Version la plus récente en 2025
+          python-version: "3.12"  # Version stable la plus récente
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller==6.0.0 requests  # Version de PyInstaller compatible avec Python 3.12
+          pip install pyinstaller==6.3.0 requests  # Version compatible avec Python 3.12
 
       - name: Build installer with PyInstaller
         run: |
           cd installer
           pyinstaller --onefile --windowed --icon=NONE main.py
-          mv dist/main.exe ../installer.exe  # Déplace le .exe à la racine
+          mv dist/main.exe ../installer.exe
 
       - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ github.run_number }}  # Numéro de build comme version
+          tag_name: v${{ github.run_number }}-${{ github.run_attempt }}  # Tag unique
           name: CDIGraph Installer v${{ github.run_number }}
+          body: |
+            **Nouvelle version de l'installateur CDIGraph**
+            - Exécutable Windows (.exe)
+            - Script Python original
           draft: false
           prerelease: false
           files: |
