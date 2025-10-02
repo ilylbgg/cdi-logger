@@ -10,6 +10,7 @@ import zipfile
 import io
 import webbrowser
 
+
 GITHUB_REPO = "https://github.com/ilylbgg/cdi-logger/archive/refs/heads/main.zip"
 INSTALL_DIR = os.path.expanduser(r"~/Documents/IlyLogiciels/cdiGraph/app")
 DESKTOP = os.path.join(os.path.expanduser("~"), "Desktop")
