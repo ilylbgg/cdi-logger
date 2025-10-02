@@ -1,0 +1,60 @@
+name: Build and Release Installer
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller requests
+
+      - name: Build installer with PyInstaller
+        run: |
+          cd installer
+          pyinstaller --onefile --windowed --icon=NONE main.py  # Remplace "NONE" par le chemin d'une icône si tu en as une
+          mv dist/main.exe ../installer.exe  # Déplace le .exe à la racine pour la Release
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Release v${{ github.run_number }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./installer.exe
+          asset_name: CDIGraph_Installer_v${{ github.run_number }}.exe
+          asset_content_type: application/octet-stream
+
+      - name: Upload Python script as asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./installer/main.py
+          asset_name: CDIGraph_Installer_Script_v${{ github.run_number }}.py
+          asset_content_type: text/x-python
