@@ -22,6 +22,7 @@ from src.statistics import (
 )
 from src.utils import round_hour, today_str
 
+debug = False
 
 # --- Logging setup ---
 log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
@@ -51,7 +52,7 @@ FONT = ("Segoe UI", 13)
 TITLE_FONT = ("Segoe UI", 18, "bold")
 
 # Style matplotlib
-matplotlib.style.use('dark_background' if theme == "dark" else 'default')
+matplotlib.style.use('default')
 
 class App(tk.Tk):
     def __init__(self):
@@ -411,8 +412,9 @@ class App(tk.Tk):
         # Conversion en listes pour le graphique
         hours = list(avg_per_hour.keys())
         values = list(avg_per_hour.values())
-        print(f"Heures disponibles: {hours}")
-        print(f"Valeurs: {values}")
+        if debug :
+            print(f"Heures disponibles: {hours}")
+            print(f"Valeurs: {values}")
         
         if hours:  # S'il y a des heures disponibles
             ax1.bar(hours, values, color=BTN_COLOR)

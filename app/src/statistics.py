@@ -49,10 +49,11 @@ def stats_semaine(target_date=None):
     end_week = start_week + timedelta(days=6)
     end_week_str = end_week.strftime('%Y-%m-%d')
     
-    print(f"Calcul stats semaine du {start_week_str} au {end_week_str}")
+    if debug : 
+        print(f"Calcul stats semaine du {start_week_str} au {end_week_str}")
     week_data = [row for row in data if start_week_str <= row[7] <= end_week_str]
     total = sum(row[6] for row in week_data)
-    print(f"Données de la semaine trouvées: {len(week_data)}")
+    if thebug : print(f"Données de la semaine trouvées: {len(week_data)}")
     return total
 
 def average_per_hour_week(target_date=None):
@@ -75,6 +76,7 @@ def average_per_hour_week(target_date=None):
     
     # Filtrer les données de la semaine
     week_data = [row for row in data if start_week_str <= row[7] <= end_week_str]
+    
     print(f"Nombre d'entrées pour la semaine: {len(week_data)}")
     print("Premières entrées de la semaine:", week_data[:3] if week_data else "Aucune donnée")
     
@@ -96,7 +98,7 @@ def average_per_hour_week(target_date=None):
         else:
             result[hour] = 0
     
-    print("Moyennes calculées:", result)
+    if debug :print("Moyennes calculées:", result)
     return result
 
 # ...other statistics functions...
