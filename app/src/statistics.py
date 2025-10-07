@@ -1,6 +1,7 @@
 from .database import get_all_attendance
 from collections import defaultdict
 from datetime import datetime, timedelta
+debug = False
 
 def stats_today(target_date=None):
     data = get_all_attendance()
@@ -53,7 +54,8 @@ def stats_semaine(target_date=None):
         print(f"Calcul stats semaine du {start_week_str} au {end_week_str}")
     week_data = [row for row in data if start_week_str <= row[7] <= end_week_str]
     total = sum(row[6] for row in week_data)
-    if thebug : print(f"Données de la semaine trouvées: {len(week_data)}")
+    if debug :
+        print(f"Données de la semaine trouvées: {len(week_data)}")
     return total
 
 def average_per_hour_week(target_date=None):
@@ -66,9 +68,10 @@ def average_per_hour_week(target_date=None):
     # Fin de la semaine = dimanche
     end_week = start_week + timedelta(days=6)
     end_week_str = end_week.strftime('%Y-%m-%d')
-    
-    print(f"Période: du {start_week_str} au {end_week_str}")
-    print(f"Nombre total d'entrées: {len(data)}")
+
+    if debug :
+        print(f"Période: du {start_week_str} au {end_week_str}")
+        print(f"Nombre total d'entrées: {len(data)}")
     
     # Créer un dictionnaire avec toutes les heures possibles initialisées à 0
     all_hours = [f"{h:02d}:00" for h in range(8, 18) if h not in (12, 17)]
@@ -76,9 +79,9 @@ def average_per_hour_week(target_date=None):
     
     # Filtrer les données de la semaine
     week_data = [row for row in data if start_week_str <= row[7] <= end_week_str]
-    
-    print(f"Nombre d'entrées pour la semaine: {len(week_data)}")
-    print("Premières entrées de la semaine:", week_data[:3] if week_data else "Aucune donnée")
+    if debug then
+        print(f"Nombre d'entrées pour la semaine: {len(week_data)}")
+        print("Premières entrées de la semaine:", week_data[:3] if week_data else "Aucune donnée")
     
     # Créer un dictionnaire avec toutes les heures possibles
     all_hours = [f"{h:02d}:00" for h in range(8, 18) if h not in (12, 17)]
@@ -98,7 +101,8 @@ def average_per_hour_week(target_date=None):
         else:
             result[hour] = 0
     
-    if debug :print("Moyennes calculées:", result)
+    if debug :
+        print("Moyennes calculées:", result)
     return result
 
 # ...other statistics functions...
