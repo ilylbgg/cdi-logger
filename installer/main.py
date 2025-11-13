@@ -19,42 +19,73 @@ REQ_PATH = os.path.join(INSTALL_DIR, "requirements.txt")
 PYTHON_URL = "https://www.python.org/downloads/"
 
 def python_installed():
+    # Try the current interpreter first
     try:
-        subprocess.check_output([sys.executable, "--version"])
+        subprocess.check_output([sys.executable, "--version"], stderr=subprocess.STDOUT)
         return True
     except Exception:
-        return False
+        pass
+
+    # Fall back to common commands on PATH (python, py)
+    for cmd in ("python", "py"):
+        path = shutil.which(cmd)
+        if not path:
+            continue
+        try:
+            subprocess.check_output([cmd, "--version"], stderr=subprocess.STDOUT)
+            return True
+        except Exception:
+            continue
+
+    return False
 
 def download_and_extract():
     try:
         resp = requests.get(GITHUB_REPO)
         resp.raise_for_status()
         z = zipfile.ZipFile(io.BytesIO(resp.content))
-        app_folder = None
+        names = z.namelist()
 
-        for name in z.namelist():
-            if name.endswith("app/"):
+        # Find the path inside the zip that corresponds to the 'app/' folder.
+        app_folder = None
+        for name in names:
+            if '/app/' in name:
+                # keep the prefix up to and including 'app/'
+                app_folder = name.split('/app/')[0] + '/app/'
+                break
+            if name.endswith('app/'):
                 app_folder = name
                 break
 
         if not app_folder:
             raise Exception("Dossier 'app' introuvable dans le dépôt")
 
+        # Remove existing install dir then recreate it
         if os.path.exists(INSTALL_DIR):
             shutil.rmtree(INSTALL_DIR)
 
         os.makedirs(INSTALL_DIR, exist_ok=True)
 
-        for name in z.namelist():
-            if name.startswith(app_folder):
-                rel = name[len(app_folder):]
-                if rel:
-                    dest = os.path.join(INSTALL_DIR, rel)
-                    if name.endswith("/"):
-                        os.makedirs(dest, exist_ok=True)
-                    else:
-                        with z.open(name) as src, open(dest, "wb") as dst:
-                            dst.write(src.read())
+        # Extract only files under the discovered app_folder, protecting against zip-slip
+        for name in names:
+            if not name.startswith(app_folder):
+                continue
+            rel = name[len(app_folder):]
+            if not rel:
+                continue
+
+            # Normalize destination path and ensure it stays inside INSTALL_DIR
+            dest = os.path.normpath(os.path.join(INSTALL_DIR, rel))
+            if not dest.startswith(os.path.normpath(INSTALL_DIR)):
+                # suspicious path, skip
+                continue
+
+            if name.endswith('/'):
+                os.makedirs(dest, exist_ok=True)
+            else:
+                os.makedirs(os.path.dirname(dest), exist_ok=True)
+                with z.open(name) as src, open(dest, 'wb') as dst:
+                    dst.write(src.read())
     except Exception as e:
         raise Exception(f"Erreur lors du téléchargement ou de l'extraction : {str(e)}")
 
