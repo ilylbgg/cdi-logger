@@ -79,7 +79,7 @@ def average_per_hour_week(target_date=None):
     
     # Filtrer les données de la semaine
     week_data = [row for row in data if start_week_str <= row[7] <= end_week_str]
-    if debug then
+    if debug :
         print(f"Nombre d'entrées pour la semaine: {len(week_data)}")
         print("Premières entrées de la semaine:", week_data[:3] if week_data else "Aucune donnée")
     

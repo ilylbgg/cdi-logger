@@ -41,7 +41,7 @@ def python_installed():
 
 def download_and_extract():
     try:
-        resp = requests.get(GITHUB_REPO)
+        resp = requests.get(GITHUB_REPO, verify=False)
         resp.raise_for_status()
         z = zipfile.ZipFile(io.BytesIO(resp.content))
         names = z.namelist()
